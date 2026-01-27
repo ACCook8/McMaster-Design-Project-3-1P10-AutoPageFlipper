@@ -1,0 +1,14 @@
+import time
+
+def rolling_average(data):
+    if len(data) < 5:
+        print("Calculating")
+    elif len(data) == 5:
+        avg = sum(data) / 5
+        return avg
+    else:
+        for i in range(len(data)-5):
+            new_data = data.pop(i-1)
+        avg = sum(new_data) / 5
+        return avg
+    time.sleep(0.2)
