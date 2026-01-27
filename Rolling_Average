@@ -5,21 +5,22 @@ def lists(euler_angles):
     data[0].append(euler_angles[0])
     data[1].append(euler_angles[1])
     data[2].append(euler_angles[2])
+    return data
 
 def rolling_average(data):
-    if len(data[1]) < 5:
+    if len(data[1]) < 10:
         print("Calculating")
 
-    elif len(data[1]) == 5:
-        avgx = sum(data[0]) / 5
-        avgy = sum(data[1]) / 5
+    elif len(data[1]) == 10:
+        avgx = sum(data[0]) / 10
+        avgy = sum(data[1]) / 10
         return [avgx, avgy]
     
     else:
-        for i in range(len(data[1])-5):
+        for i in range(len(data[1])-10):
             new_datax = data[0].pop(i-1)
             new_datay = data[1].pop(i-1)
-        avgx = sum(new_datax) / 5
-        avgy = sum(new_datay) / 5
+        avgx = sum(new_datax) / 10
+        avgy = sum(new_datay) / 10
         return [avgx, avgy]
     time.sleep(0.2)
