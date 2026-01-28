@@ -65,7 +65,7 @@ def main():
         var = double_head_nod(data[1])
         if var == True: 
             new_data = [[],[],[]] 
-            while len(data[0]) < 10: ## initializing ten values for sensor (last 5 seconds)
+            while len(new_data[0]) < 10: ## initializing ten values for sensor (last 5 seconds)
                 new_values = sensor_data()
                 new_data[0].append(new_values[0])
                 new_data[1].append(new_values[1])
