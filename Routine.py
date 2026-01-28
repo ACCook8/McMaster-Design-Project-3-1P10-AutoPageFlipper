@@ -75,7 +75,7 @@ def main():
         else: 
             continue
         
-        valuenew = left_or_right(new_values[0])
+        valuenew = left_or_right(new_data[0])
     
 
                    
