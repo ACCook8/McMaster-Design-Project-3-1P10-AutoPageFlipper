@@ -70,7 +70,7 @@ def main():
                 new_data[0].append(new_values[0])
                 new_data[1].append(new_values[1])
                 new_data[2].append(new_values[2])
-                led.blink()## tells user system needs input left or head nod
+                led_blink()## tells user, system needs input left or head nod
 
         else: 
             continue
