@@ -14,10 +14,10 @@ def sensor_data():
     return euler_angles #returns orientation sensor data in form x,y,z position values
 
 ##double head nod initializes the page flipping sequence
-def double_head_nod(list): ##checks to see if double head nod was performed in the last 5 seconds
-    if (list[2] - list[0]) < -30:
-        if (list[5] - list[3]) > 30:
-            if (list[8] - list[6]) < -30:
+def double_head_nod(listy): ##checks to see if double head nod was performed in the last 5 seconds
+    if (listy[2] - listy[0]) < -30:
+        if (listy[5] - listy[3]) > 30:
+            if (listy[8] - listy[6]) < -30:
                 return True
     else: 
         return False
@@ -25,12 +25,12 @@ def double_head_nod(list): ##checks to see if double head nod was performed in t
 ##currently there is a problem here. This will not do anything unless all conditions are met
 ##user has to perfectly time everything right now 
 
-def left_or_right(list): ##left = false right = true
+def left_or_right(listy): ##left = false right = true
     x = 1 
-    for i in list: 
-        if list[x] - list[x-1] > 30:
+    for i in listy: 
+        if listy[x] - listy[x-1] > 30:
             return True 
-        elif list[x] - list[x-1] < -30 or abs(list[x] - list[x-1]) > 330:
+        elif listy[x] - listy[x-1] < -30 or abs(listy[x] - listy[x-1]) > 330:
             return False
         x +=1
 
