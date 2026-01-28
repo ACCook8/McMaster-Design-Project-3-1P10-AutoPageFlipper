@@ -1,7 +1,8 @@
 from Sensors import *
 from gpiozero import LED
 import sys
-import time 
+import time
+import math
 
 orientation_sensor = Orientation_Sensor()
 led = LED(num)
@@ -10,7 +11,7 @@ def sensor_data():
     euler_angles = orientation_sensor.euler_angles()
     time.sleep(0.5)
     print("x:\t", euler_angles[0], "y:\t", euler_angles[1], "z:\t", euler_angles[2]) #prints sensor data for orientation sensor
-    return euler_angles #returns orientation sensor data in form x,y,z
+    return euler_angles #returns orientation sensor data in form x,y,z position values
 
 ##double head nod initializes the page flipping sequence
 def double_head_nod(list): ##checks to see if double head nod was performed in the last 5 seconds
@@ -29,7 +30,7 @@ def left_or_right(list): ##left = false right = true
     for i in list: 
         if list[x] - list[x-1] > 30:
             return True 
-        elif list[x] - list[x-1] < 330:
+        elif list[x] - list[x-1] < -30 or math.abs(list[x] - list[x-1]) > 330:
             return False
         x +=1
 
@@ -74,7 +75,7 @@ def main():
         else: 
             continue
         
-        valuenew = left_or_right(new_values[1])
+        valuenew = left_or_right(new_values[0])
     
 
                    
