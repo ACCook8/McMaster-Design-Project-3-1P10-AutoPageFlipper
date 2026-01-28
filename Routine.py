@@ -30,7 +30,7 @@ def left_or_right(list): ##left = false right = true
     for i in list: 
         if list[x] - list[x-1] > 30:
             return True 
-        elif list[x] - list[x-1] < -30 or math.abs(list[x] - list[x-1]) > 330:
+        elif list[x] - list[x-1] < -30 or abs(list[x] - list[x-1]) > 330:
             return False
         x +=1
 
