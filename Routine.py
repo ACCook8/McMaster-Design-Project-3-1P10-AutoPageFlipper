@@ -2,7 +2,7 @@ from Sensors import *
 from gpiozero import LED
 import sys
 import time
-import math
+
 
 orientation_sensor = Orientation_Sensor()
 led = LED(num)
@@ -15,30 +15,51 @@ def sensor_data():
 
 ##double head nod initializes the page flipping sequence
 def double_head_nod(listy): ##checks to see if double head nod was performed in the last 5 seconds
-    if (listy[2] - listy[0]) < -30:
-        if (listy[5] - listy[3]) > 30:
-            if (listy[8] - listy[6]) < -30:
-                return True
-    else: 
-        return False
+    motions = [] # 1 indicates up, -1 indicates down
+    for i in range (1, len(listy)):
+        change = ((listy[i]-listy[i-1]+180) %360)-180
 
-##currently there is a problem here. This will not do anything unless all conditions are met
-##user has to perfectly time everything right now 
+        if change >= 30: 
+            motions.append(1)
+        elif change <= -30: 
+            motions.append(-1)
+    ## checks for down up down motions (-1,1,-1)
+    for i in range (len(motions)-2): ##has to be -2 or because there need to be 3 values to check to not cause error 
+        if motions[i] == -1 and motions[i+1] == 1 and motions[i+2] == -1: 
+            return True
+    return False
+        
+ 
 
 def left_or_right(listy): ##left = false right = true
-    x = 1 
-    for i in listy: 
-        if listy[x] - listy[x-1] > 30:
+    for i in range (1,len(listy)): 
+        old = listy[i-1]
+        new = listy[i]
+
+        #this part is fairly confusing 
+        #calculates the difference between initial and final angles first
+        #The problem is that this is on a 0 -> 360 linear scale, we need it on -180 -> 180
+        #to change this, we add 180 to the number (changes reference points on line)
+        #now 0 is actually 180 (the limit we want)
+        #mod 360 this number, gives us the reference point compared to 180 (the current ref point)
+        #then -180 to bring it back to the old reference system
+        # this tells us the distance from the initial angle 
+        # - indicates left, + indicates right
+
+        change = ((new-old+180) %360)-180
+
+        if change >=30:  ## Right Turn 
             return True 
-        elif listy[x] - listy[x-1] < -30 or abs(listy[x] - listy[x-1]) > 330:
+        elif change <= -30: ## Left Turn
             return False
-        x +=1
+    return None
+        
 
                     
 def rolling_avg(data):
-    avg1 = sum(data[0])/10
-    avg2 = sum(data[1])/10
-    avg3 = sum(data[2])/10
+    avg1 = sum(data[0])/len(data[0])
+    avg2 = sum(data[1])/len(data[1])
+    avg3 = sum(data[2])/len(data[2])
 
     print("Avg X:", avg1, "Avg Y:", avg2, "Avg X:", avg3)
 ##Rolling average calculated for last 5 seconds
@@ -75,7 +96,14 @@ def main():
         else: 
             continue
         
-        valuenew = left_or_right(new_data[0])
+        direction = left_or_right(new_data[0])
+        if direction == True: 
+            print("right")
+            #this is where motor movement for page forward would start
+        elif direction == False: 
+            print ("left")
+            #this is where motor movement for page back would start 
+
     
 
                    
