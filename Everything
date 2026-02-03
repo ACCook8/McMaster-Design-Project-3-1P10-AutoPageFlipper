@@ -1,9 +1,11 @@
 from sensor_library import *
 from gpiozero import LED
+from gpiozero import Servo
 import sys
 import time
 
-
+servo1 = Servo(24)
+servo2 = Servo(16)
 orientation_sensor = Orientation_Sensor()
 led = LED(11)
 
@@ -11,22 +13,25 @@ led = LED(11)
 def sensor_data():
     euler_angles = orientation_sensor.euler_angles()
     time.sleep(0.4)
-    print("x:\t", euler_angles[0], "y:\t", euler_angles[1], "z:\t", euler_angles[2]) #prints sensor data for orientation sensor
+    print("x:\t", euler_angles[0], "\ty:\t", euler_angles[1], "\tz:\t", euler_angles[2]) #prints sensor data for orientation sensor
     return euler_angles #returns orientation sensor data in form x,y,z position values
 
 ##double head nod initializes the page flipping sequence
 def double_head_nod(listy): ##checks to see if double head nod was performed in the last 5 seconds
     motions = [] # 1 indicates up, -1 indicates down
+    changes = []
     for i in range (1, len(listy)):
         change = listy[i]-listy[i-1]
+        changes.append(change)
 
         if change >= 30: 
             motions.append(1)
         elif change <= -30: 
             motions.append(-1)
     ## checks for down up down motions (-1,1,-1)
+    print("changes:  ", changes)
 
-    print(motions)
+    print("Motions:  ", motions)
     for i in range (len(motions)-2): ##has to be -2 or because there need to be 3 values to check to not cause error 
         if motions[i] == -1 and motions[i+1] == 1 and motions[i+2] == -1: 
             return True
@@ -107,7 +112,13 @@ def main():
         direction = left_or_right(new_data[0])
         if direction == True: 
             print("right")
+            servo1.value(1)
+            time.sleep(0.5)
+            servo2.value(0.5)
             #this is where motor movement for page forward would start
         elif direction == False: 
             print ("left")
+            servo1.value(-1)
+            time.sleep(0.5)
+            servo2.value(-0.5)
             #this is where motor movement for page back would start
