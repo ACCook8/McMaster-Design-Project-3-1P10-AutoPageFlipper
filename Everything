@@ -8,11 +8,13 @@ servo1 = Servo(24)
 servo2 = Servo(16)
 orientation_sensor = Orientation_Sensor()
 led = LED(11)
-
+servo1.detach()
+servo2.detach()
 
 def sensor_data():
+
     euler_angles = orientation_sensor.euler_angles()
-    time.sleep(0.4)
+    time.sleep(0.15)
     print("x:\t", euler_angles[0], "\ty:\t", euler_angles[1], "\tz:\t", euler_angles[2]) #prints sensor data for orientation sensor
     return euler_angles #returns orientation sensor data in form x,y,z position values
 
@@ -80,13 +82,22 @@ def led_blink(): ##blinks an led (must be used in a loop to have continuous blin
     time.sleep(0.5)
     led.off()
 
+def servo_rountine(direction): ##direction is either pos or neg to indicate flip forward or back
+    ## pos is forward
+    ## neg is back
+    if direction > 0:
+        ##servo2.value(
+        return None
+    elif direction < 0:
+        return None
+    return None
                     
 def main():
     
     while True:
 
         data = [[],[],[]] 
-        while len(data[0]) < 10: ## initializing ten values for sensor (last 5 seconds)
+        while len(data[0]) < 15: ## initializing ten values for sensor (last 5 seconds)
             values = sensor_data()
             data[0].append(values[0])
             data[1].append(values[1])
@@ -96,29 +107,65 @@ def main():
 
         var = double_head_nod(data[1])
         if var == True: 
-            new_data = [[],[],[]] 
-            while len(new_data[0]) < 4: ## initializing ten values for sensor (last 5 seconds)
+            new_data = [[],[],[]]
+            led.on()
+            
+            while len(new_data[0]) < 15: ## initializing ten values for sensor (last 5 seconds)
                 new_values = sensor_data()
                 new_data[0].append(new_values[0])
                 new_data[1].append(new_values[1])
                 new_data[2].append(new_values[2])
-                led_blink()
+            led.off()
                     
 
 
-        else: 
+        else:
+            print('no valid head turn values')
             continue
         
         direction = left_or_right(new_data[0])
         if direction == True: 
             print("right")
-            servo1.value(1)
-            time.sleep(0.5)
-            servo2.value(0.5)
+            try:
+                servo1.value = 1
+                time.sleep(1)
+                servo1.detach()
+                time.sleep(0.5)
+                servo2.value = 0.5
+                time.sleep(1)
+                servo2.detach()
+                time.sleep(0.5)
+
+            except KeyboardInterrupt:
+                servo1.detach()
+                servo2.detach()
+                sys.exit(0)
             #this is where motor movement for page forward would start
         elif direction == False: 
             print ("left")
-            servo1.value(-1)
-            time.sleep(0.5)
-            servo2.value(-0.5)
+            try:
+                servo1.value = -1
+                time.sleep(1)
+                servo1.detach()
+                time.sleep(0.5)
+                servo2.value = -0.5
+                time.sleep(1)
+                servo2.detach()
+                time.sleep(0.5)
+            except KeyboardInterrupt:
+                servo1.detach()
+                servo2.detach()
+                sys.exit(0)
+        else:
+            continue
+
+        ##routine goes here !!!!!!!!!!!!
+
+        ##reset motors
+
+        servo1.value(0)
+        servo2.value(0)
             #this is where motor movement for page back would start
+main()
+
+
