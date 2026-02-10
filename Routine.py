@@ -1,4 +1,4 @@
-from Sensors import *
+from sensor_library import *
 from gpiozero import LED
 import sys
 import time
@@ -15,7 +15,7 @@ def sensor_data():
 
 ##double head nod initializes the page flipping sequence
 def double_head_nod(listy): ##checks to see if double head nod was performed in the last 5 seconds
-    motions = [] # 1 indicates up, -1 indicates down
+    motions = [] # 1 indicates up, -1 indicates down 
     for i in range (1, len(listy)):
         change = ((listy[i]-listy[i-1]+180) %360)-180
 

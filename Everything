@@ -4,8 +4,8 @@ from gpiozero import Servo
 import sys
 import time
 
-servo1 = Servo(24)
-servo2 = Servo(16)
+servo1 = Servo(24) ## side to side
+servo2 = Servo(16) ## up down
 orientation_sensor = Orientation_Sensor()
 led = LED(11)
 servo1.detach()
@@ -82,15 +82,34 @@ def led_blink(): ##blinks an led (must be used in a loop to have continuous blin
     time.sleep(0.5)
     led.off()
 
-def servo_rountine(direction): ##direction is either pos or neg to indicate flip forward or back
+def reset_motors(): 
+    servo2.max()
+    servo1.mid()
+    servo2.detach()
+    servo1.detach()
+
+def servo_routine(position): ##direction is either pos or neg to indicate flip forward or back
     ## pos is forward
     ## neg is back
-    if direction > 0:
-        ##servo2.value(
-        return None
-    elif direction < 0:
-        return None
-    return None
+    
+    ## position input should be -1 for left 
+    ## should be positive 1 for right
+    
+        
+    servo1.value(position)
+    servo1.detach()
+    time.sleep(0.5)
+    arbitrary = -0.5
+    servo2.value(arbitrary) ##position will need to be tested
+    servo2.detach()
+    time.sleep(0.5)
+    servo1.mid()
+    servo1.detach()
+    time.sleep(0.5)
+    servo2.max()
+    servo2.detach()
+    time.sleep(0.5)
+    
                     
 def main():
     
@@ -127,14 +146,7 @@ def main():
         if direction == True: 
             print("right")
             try:
-                servo1.value = 1
-                time.sleep(1)
-                servo1.detach()
-                time.sleep(0.5)
-                servo2.value = 0.5
-                time.sleep(1)
-                servo2.detach()
-                time.sleep(0.5)
+                servo_routine(-1)
 
             except KeyboardInterrupt:
                 servo1.detach()
@@ -144,28 +156,13 @@ def main():
         elif direction == False: 
             print ("left")
             try:
-                servo1.value = -1
-                time.sleep(1)
-                servo1.detach()
-                time.sleep(0.5)
-                servo2.value = -0.5
-                time.sleep(1)
-                servo2.detach()
-                time.sleep(0.5)
+                servo_routine(-1)
             except KeyboardInterrupt:
                 servo1.detach()
                 servo2.detach()
                 sys.exit(0)
         else:
             continue
-
-        ##routine goes here !!!!!!!!!!!!
-
-        ##reset motors
-
-        servo1.value(0)
-        servo2.value(0)
-            #this is where motor movement for page back would start
+        reset_motors()
 main()
-
 
