@@ -87,6 +87,7 @@ def reset_motors():
     servo1.mid()
     servo2.detach()
     servo1.detach()
+    
 
 def servo_routine(position): ##direction is either pos or neg to indicate flip forward or back
     ## pos is forward
@@ -96,19 +97,20 @@ def servo_routine(position): ##direction is either pos or neg to indicate flip f
     ## should be positive 1 for right
     
         
-    servo1.value(position)
-    servo1.detach()
+    servo1.value = position
     time.sleep(0.5)
+    servo1.detach()
     arbitrary = -0.5
-    servo2.value(arbitrary) ##position will need to be tested
-    servo2.detach()
+    servo2.value = arbitrary ##position will need to be tested
     time.sleep(0.5)
-    servo1.value(-position)
+    servo2.detach()
+    servo1.value = -position
+    time.sleep(0.5)
     servo1.detach()
-    time.sleep(0.5)
     servo2.max()
-    servo2.detach()
     time.sleep(0.5)
+    servo2.detach()
+    
     
                     
 def main():
@@ -161,8 +163,8 @@ def main():
                 servo1.detach()
                 servo2.detach()
                 sys.exit(0)
-        else:
-            continue
+        
         reset_motors()
+        continue
 main()
 
