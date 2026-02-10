@@ -103,7 +103,7 @@ def servo_routine(position): ##direction is either pos or neg to indicate flip f
     servo2.value(arbitrary) ##position will need to be tested
     servo2.detach()
     time.sleep(0.5)
-    servo1.mid()
+    servo1.value(-position)
     servo1.detach()
     time.sleep(0.5)
     servo2.max()
