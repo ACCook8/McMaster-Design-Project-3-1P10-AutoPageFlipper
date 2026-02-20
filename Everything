@@ -46,7 +46,6 @@ def left_or_right(listy): ##left = false right = true
         old = listy[i-1]
         new = listy[i]
 
-        #this part is fairly confusing 
         #calculates the difference between initial and final angles first
         #The problem is that this is on a 0 -> 360 linear scale, we need it on -180 -> 180
         #to change this, we add 180 to the number (changes reference points on line)
@@ -65,17 +64,34 @@ def left_or_right(listy): ##left = false right = true
     return None
         
 
-                    
+#To calculate the rolling average for each of the three axies                   
 def rolling_avg(data):
+    datalist1 = []
+    datalist2 = []
+    datalist3 = []
     try:
-        avg1 = sum(data[0])/len(data[0])
-        avg2 = sum(data[1])/len(data[1])
-        avg3 = sum(data[2])/len(data[2])
+        if len(data[0]) <= 5: #Finds normal average as the numbers are within the rolling average length
+            avg1 = sum(data[0])/len(data[0]) 
+            avg2 = sum(data[1])/len(data[1])
+            avg3 = sum(data[2])/len(data[2])
+        elif len(data[0]) > 5: #Finds rolling average as there are more than 5 numbers in each list now
+
+            for i in range 5:
+                datalist1.append(data[0][-(i+1)])
+            avg1 = sum(datalist1)/5
+
+            for i in range (len(data[1])):
+                datalist2.append(data[1][-(i+1)])
+            avg2 = sum(datalist2)/5
+
+            for i in range (len(data[2])):
+                datalist2.append(data[2][-(i+1)])
+            avg3 = sum(datalist3)/5
     except ValueError:
         print("sensor error")
 
-    print("Avg X:", avg1, "Avg Y:", avg2, "Avg X:", avg3)
-##Rolling average calculated for last 5 seconds
+    return(avg1, avg2, avg3)
+##Rolling average calculated for last 5 points of data
 
 def led_blink(): ##blinks an led (must be used in a loop to have continuous blinking)
     led.on()
@@ -114,29 +130,36 @@ def servo_routine(position): ##direction is either pos or neg to indicate flip f
     
                     
 def main():
+
+    print ("x Orientation (Raw) \t", "y Oritenation (Raw) \t", "x Orientation (avg) \t", "y Orientation (avg) \t", "LED \t", "Servos")
     
     while True:
 
         data = [[],[],[]] 
-        while len(data[0]) < 15: ## initializing ten values for sensor (last 5 seconds)
+        while len(data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
             values = sensor_data()
             data[0].append(values[0])
             data[1].append(values[1])
             data[2].append(values[2])
         
-        rolling_avg(data) ##prints out rolling average for values in the last 5 seconds of sensor data
+        rolling_avg(data) #Finds the rolling average of the code to later be printed
 
-        var = double_head_nod(data[1])
+
+
+        var = double_head_nod(data[1]) #Takes in the double head nod as an input
         if var == True: 
             new_data = [[],[],[]]
-            led.on()
+            led.on() #The double head nod initiates the led to show that it is active
+
+            print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "ON \t", "OFF" )
             
-            while len(new_data[0]) < 15: ## initializing ten values for sensor (last 5 seconds)
+            while len(new_data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
                 new_values = sensor_data()
                 new_data[0].append(new_values[0])
                 new_data[1].append(new_values[1])
                 new_data[2].append(new_values[2])
             led.off()
+            print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "OFF \t", "OFF" )
                     
 
 
@@ -145,10 +168,10 @@ def main():
             continue
         
         direction = left_or_right(new_data[0])
-        if direction == True: 
-            print("right")
+        if direction == True: #Turning head left or right will flip the page forwards or backwards respectively
             try:
                 servo_routine(-1)
+                print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "OFF \t", "ON" )
 
             except KeyboardInterrupt:
                 servo1.detach()
@@ -156,9 +179,9 @@ def main():
                 sys.exit(0)
             #this is where motor movement for page forward would start
         elif direction == False: 
-            print ("left")
             try:
                 servo_routine(-1)
+                print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "OFF \t", "ON" )
             except KeyboardInterrupt:
                 servo1.detach()
                 servo2.detach()
