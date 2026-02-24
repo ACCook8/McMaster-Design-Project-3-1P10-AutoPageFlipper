@@ -4,18 +4,24 @@ from gpiozero import Servo
 import sys
 import time
 
-servo1 = Servo(24) ## side to side
-servo2 = Servo(16) ## up down
+servo1 = Servo(24, 2.25/1000, 0.75/1000) ## side to side
+servo2 = Servo(16, 2.25/1000, 0.75/1000) ## up down
 orientation_sensor = Orientation_Sensor()
 led = LED(11) ##motion indicator
 servo1.detach()
 servo2.detach()
 
+def reset():
+    servo1.value = 0
+    servo2.value = 0
+    servo1.detach()
+    servo2.detach()
+
 def sensor_data():
 
     euler_angles = orientation_sensor.euler_angles()
     time.sleep(0.15)
-    print("x:\t", euler_angles[0], "\ty:\t", euler_angles[1], "\tz:\t", euler_angles[2]) #prints sensor data for orientation sensor
+    ##print("x:\t", euler_angles[0], "\ty:\t", euler_angles[1], "\tz:\t", euler_angles[2]) #prints sensor data for orientation sensor
     return euler_angles #returns orientation sensor data in form x,y,z position values
 
 ##double head nod initializes the page flipping sequence
@@ -26,23 +32,23 @@ def double_head_nod(listy): ##checks to see if double head nod was performed in 
         change = listy[i]-listy[i-1]
         changes.append(change)
 
-        if change >= 30: 
+        if change >= 30:
             motions.append(1)
-        elif change <= -30: 
+        elif change <= -30:
             motions.append(-1)
     ## checks for down up down motions (-1,1,-1)
     print("changes:  ", changes)
 
     print("Motions:  ", motions)
-    for i in range (len(motions)-2): ##has to be -2 or because there need to be 3 values to check to not cause error 
-        if motions[i] == -1 and motions[i+1] == 1 and motions[i+2] == -1: 
+    for i in range (len(motions)-2): ##has to be -2 or because there need to be 3 values to check to not cause error
+        if motions[i] == -1 and motions[i+1] == 1 and motions[i+2] == -1:
             return True
     return False
-        
+       
  
 
 def left_or_right(listy): ##left = false right = true
-    for i in range (1,len(listy)): 
+    for i in range (1,len(listy)):
         old = listy[i-1]
         new = listy[i]
 
@@ -52,41 +58,41 @@ def left_or_right(listy): ##left = false right = true
         #now 0 is actually 180 (the limit we want)
         #mod 360 this number, gives us the reference point compared to 180 (the current ref point)
         #then -180 to bring it back to the old reference system
-        # this tells us the distance from the initial angle 
+        # this tells us the distance from the initial angle
         # - indicates left, + indicates right
 
         change = ((new-old+180) %360)-180
 
-        if change >=30:  ## Right Turn 
-            return True 
+        if change >=30:  ## Right Turn
+            return True
         elif change <= -30: ## Left Turn
             return False
     return None
-        
+       
 
-#To calculate the rolling average for each of the three axies                   
+#To calculate the rolling average for each of the three axies                  
 def rolling_avg(data):
     datalist1 = []
     datalist2 = []
     datalist3 = []
     try:
-        if len(data[0]) <= 15: #Finds normal average as the numbers are within the rolling average length
-            avg1 = sum(data[0])/len(data[0]) 
-            avg2 = sum(data[1])/len(data[1])
-            avg3 = sum(data[2])/len(data[2])
+        if len(data[0]) < 15: #Finds normal average as the numbers are within the rolling average length
+            avg1 = None
+            avg2 = None
+            avg3 = None
         elif len(data[0]) >= 15: #Finds rolling average as there are more than 5 numbers in each list now
 
-            for i in range (15):
+            for i in range (len(data[0])):
                 datalist1.append(data[0][i])
-            avg1 = sum(datalist1)/5
+            avg1 = sum(datalist1)/15
 
             for i in range (len(data[1])):
                 datalist2.append(data[1][i])
-            avg2 = sum(datalist2)/5
+            avg2 = sum(datalist2)/15
 
             for i in range (len(data[2])):
-                datalist2.append(data[2][i])
-            avg3 = sum(datalist3)/5
+                datalist3.append(data[2][i])
+            avg3 = sum(datalist3)/15
     except ValueError:
         print("sensor error")
 
@@ -98,21 +104,21 @@ def led_blink(): ##blinks an led (must be used in a loop to have continuous blin
     time.sleep(0.5)
     led.off()
 
-def reset_motors(): 
+def reset_motors():
     servo2.max()
     servo1.mid()
     servo2.detach()
     servo1.detach()
-    
+   
 
 def servo_routine(position): ##direction is either pos or neg to indicate flip forward or back
     ## pos is forward
     ## neg is back
-    
-    ## position input should be -1 for left 
+   
+    ## position input should be -1 for left
     ## should be positive 1 for right
-    
-        
+    print(position)
+       
     servo1.value = position
     time.sleep(0.5)
     servo1.detach()
@@ -126,33 +132,37 @@ def servo_routine(position): ##direction is either pos or neg to indicate flip f
     servo2.max()
     time.sleep(0.5)
     servo2.detach()
-    
-    
-                    
+    time.sleep(0.5)
+    reset()
+   
+   
+                   
 def main():
 
+    reset()
+
     print ("x Orientation (Raw) \t", "y Oritenation (Raw) \t", "x Orientation (avg) \t", "y Orientation (avg) \t", "LED \t", "Servos")
-    
+   
     while True:
 
-        data = [[],[],[]] 
+        data = [[],[],[]]
         while len(data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
             values = sensor_data()
             data[0].append(values[0])
             data[1].append(values[1])
             data[2].append(values[2])
-        
+       
         avg = rolling_avg(data) #Finds the rolling average of the code to later be printed
 
 
 
         var = double_head_nod(data[1]) #Takes in the double head nod as an input
-        if var == True: 
+        if var == True:
             new_data = [[],[],[]]
             led.on() #The double head nod initiates the led to show that it is active
 
             print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "ON \t", "OFF" )
-            
+           
             while len(new_data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
                 new_values = sensor_data()
                 new_data[0].append(new_values[0])
@@ -160,16 +170,17 @@ def main():
                 new_data[2].append(new_values[2])
             led.off()
             print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "OFF \t", "OFF" )
-                    
+                   
 
 
         else:
             print('no valid head turn values')
             continue
-        
+       
         direction = left_or_right(new_data[0])
         if direction == True: #Turning head left or right will flip the page forwards or backwards respectively
             try:
+                print("right")
                 servo_routine(-1)
                 print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "OFF \t", "ON" )
 
@@ -178,16 +189,17 @@ def main():
                 servo2.detach()
                 sys.exit(0)
             #this is where motor movement for page forward would start
-        elif direction == False: 
+        elif direction == False:
             try:
-                servo_routine(-1)
+                print("left")
+                servo_routine(1)
                 print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "OFF \t", "ON" )
             except KeyboardInterrupt:
                 servo1.detach()
                 servo2.detach()
                 sys.exit(0)
-        
-        reset_motors()
+       
         continue
 main()
+
 
