@@ -14,6 +14,7 @@ servo2.detach()
 def reset():
     servo1.value = 0
     servo2.value = 0
+    time.sleep(0.8)
     servo1.detach()
     servo2.detach()
 
@@ -126,12 +127,26 @@ def servo_routine(position): ##direction is either pos or neg to indicate flip f
     servo2.value = arbitrary ##position will need to be tested
     time.sleep(0.5)
     servo2.detach()
-    servo1.value = -position
+    if position == -1:
+        position_new = -0.7
+    if position ==1:
+        position_new = 0.7
+    servo1.value = -position_new
     time.sleep(0.5)
     servo1.detach()
     servo2.max()
     time.sleep(0.5)
     servo2.detach()
+    time.sleep(0.5)
+    reset()
+    time.sleep(0.5)
+    reset()
+    time.sleep(0.5)
+    reset()
+    time.sleep(0.5)
+    reset()
+    time.sleep(0.5)
+    reset()
     time.sleep(0.5)
     reset()
    
