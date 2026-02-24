@@ -70,27 +70,27 @@ def rolling_avg(data):
     datalist2 = []
     datalist3 = []
     try:
-        if len(data[0]) <= 5: #Finds normal average as the numbers are within the rolling average length
+        if len(data[0]) <= 15: #Finds normal average as the numbers are within the rolling average length
             avg1 = sum(data[0])/len(data[0]) 
             avg2 = sum(data[1])/len(data[1])
             avg3 = sum(data[2])/len(data[2])
-        elif len(data[0]) > 5: #Finds rolling average as there are more than 5 numbers in each list now
+        elif len(data[0]) >= 15: #Finds rolling average as there are more than 5 numbers in each list now
 
-            for i in range 5:
-                datalist1.append(data[0][-(i+1)])
+            for i in range (15):
+                datalist1.append(data[0][i])
             avg1 = sum(datalist1)/5
 
             for i in range (len(data[1])):
-                datalist2.append(data[1][-(i+1)])
+                datalist2.append(data[1][i])
             avg2 = sum(datalist2)/5
 
             for i in range (len(data[2])):
-                datalist2.append(data[2][-(i+1)])
+                datalist2.append(data[2][i])
             avg3 = sum(datalist3)/5
     except ValueError:
         print("sensor error")
 
-    return(avg1, avg2, avg3)
+    return[avg1, avg2, avg3]
 ##Rolling average calculated for last 5 points of data
 
 def led_blink(): ##blinks an led (must be used in a loop to have continuous blinking)
@@ -142,7 +142,7 @@ def main():
             data[1].append(values[1])
             data[2].append(values[2])
         
-        rolling_avg(data) #Finds the rolling average of the code to later be printed
+        avg = rolling_avg(data) #Finds the rolling average of the code to later be printed
 
 
 
@@ -151,7 +151,7 @@ def main():
             new_data = [[],[],[]]
             led.on() #The double head nod initiates the led to show that it is active
 
-            print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "ON \t", "OFF" )
+            print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "ON \t", "OFF" )
             
             while len(new_data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
                 new_values = sensor_data()
@@ -159,7 +159,7 @@ def main():
                 new_data[1].append(new_values[1])
                 new_data[2].append(new_values[2])
             led.off()
-            print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "OFF \t", "OFF" )
+            print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "OFF \t", "OFF" )
                     
 
 
@@ -171,7 +171,7 @@ def main():
         if direction == True: #Turning head left or right will flip the page forwards or backwards respectively
             try:
                 servo_routine(-1)
-                print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "OFF \t", "ON" )
+                print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "OFF \t", "ON" )
 
             except KeyboardInterrupt:
                 servo1.detach()
@@ -181,7 +181,7 @@ def main():
         elif direction == False: 
             try:
                 servo_routine(-1)
-                print(data[0] "\t", data[1] "\t", avg1 "\t", avg2 "\t", "OFF \t", "ON" )
+                print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "OFF \t", "ON" )
             except KeyboardInterrupt:
                 servo1.detach()
                 servo2.detach()
