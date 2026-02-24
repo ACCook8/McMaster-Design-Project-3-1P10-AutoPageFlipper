@@ -7,7 +7,7 @@ import time
 servo1 = Servo(24) ## side to side
 servo2 = Servo(16) ## up down
 orientation_sensor = Orientation_Sensor()
-led = LED(11)
+led = LED(11) ##motion indicator
 servo1.detach()
 servo2.detach()
 
