@@ -11,21 +11,19 @@ led = LED(11) ##motion indicator
 servo1.detach()
 servo2.detach()
 
-def reset():
+def reset(): #Reseting the motors to their defult position
     servo1.value = 0
     servo2.value = 0
     time.sleep(0.8)
     servo1.detach()
     servo2.detach()
 
-def sensor_data():
+def sensor_data(): #Taking in the sensor data and returning it as a list
 
     euler_angles = orientation_sensor.euler_angles()
     time.sleep(0.15)
-    ##print("x:\t", euler_angles[0], "\ty:\t", euler_angles[1], "\tz:\t", euler_angles[2]) #prints sensor data for orientation sensor
     return euler_angles #returns orientation sensor data in form x,y,z position values
 
-##double head nod initializes the page flipping sequence
 def double_head_nod(listy): ##checks to see if double head nod was performed in the last 5 seconds
     motions = [] # 1 indicates up, -1 indicates down
     changes = []
@@ -33,7 +31,7 @@ def double_head_nod(listy): ##checks to see if double head nod was performed in 
         change = listy[i]-listy[i-1]
         changes.append(change)
 
-        if change >= 30:
+        if change >= 30: #When the y position changes by 30 degrees or more, it is considered a nod
             motions.append(1)
         elif change <= -30:
             motions.append(-1)
@@ -104,12 +102,6 @@ def led_blink(): ##blinks an led (must be used in a loop to have continuous blin
     led.on()
     time.sleep(0.5)
     led.off()
-
-def reset_motors():
-    servo2.max()
-    servo1.mid()
-    servo2.detach()
-    servo1.detach()
    
 
 def servo_routine(position): ##direction is either pos or neg to indicate flip forward or back
@@ -161,7 +153,7 @@ def main():
     while True:
 
         data = [[],[],[]]
-        while len(data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
+        while len(data[0]) < 15: #initializing 15 values for sensor (last 5 seconds)
             values = sensor_data()
             data[0].append(values[0])
             data[1].append(values[1])
@@ -178,7 +170,7 @@ def main():
 
             print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "ON \t", "OFF" )
            
-            while len(new_data[0]) < 15: #initializing ten values for sensor (last 5 seconds)
+            while len(new_data[0]) < 15: #initializing 15 values for sensor (last 5 seconds)
                 new_values = sensor_data()
                 new_data[0].append(new_values[0])
                 new_data[1].append(new_values[1])
