@@ -14,14 +14,14 @@ servo2.detach()
 def reset(): #Reseting the motors to their defult position
     servo1.value = 0
     servo2.value = 0
-    time.sleep(0.8)
+    time.sleep(0.7)
     servo1.detach()
     servo2.detach()
 
 def sensor_data(): #Taking in the sensor data and returning it as a list
 
     euler_angles = orientation_sensor.euler_angles()
-    time.sleep(0.15)
+    time.sleep(0.14)
     return euler_angles #returns orientation sensor data in form x,y,z position values
 
 def double_head_nod(listy): ##checks to see if double head nod was performed in the last 5 seconds
@@ -31,16 +31,16 @@ def double_head_nod(listy): ##checks to see if double head nod was performed in 
         change = listy[i]-listy[i-1]
         changes.append(change)
 
-        if change >= 30: #When the y position changes by 30 degrees or more, it is considered a nod
+        if change >= 23: #When the y position changes by 30 degrees or more, it is considered a nod
             motions.append(1)
-        elif change <= -30:
+        elif change <= -23:
             motions.append(-1)
     ## checks for down up down motions (-1,1,-1)
     print("changes:  ", changes)
 
     print("Motions:  ", motions)
     for i in range (len(motions)-2): ##has to be -2 or because there need to be 3 values to check to not cause error
-        if motions[i] == -1 and motions[i+1] == 1 and motions[i+2] == -1:
+        if (motions[i] == -1 and motions[i+1] == 1 and motions[i+2] == -1) or (motions[i] == 1 and motions[i+1] == -1 and motions[i+2] == 1):
             return True
     return False
        
@@ -62,9 +62,9 @@ def left_or_right(listy): ##left = false right = true
 
         change = ((new-old+180) %360)-180
 
-        if change >=30:  ## Right Turn
+        if change >=15:  ## Right Turn
             return True
-        elif change <= -30: ## Left Turn
+        elif change <= -15: ## Left Turn
             return False
     return None
        
@@ -79,7 +79,7 @@ def rolling_avg(data):
             avg1 = None
             avg2 = None
             avg3 = None
-        elif len(data[0]) >= 15: #Finds rolling average as there are more than 5 numbers in each list now
+        elif len(data[0]) >= 15: #Finds rolling average as there are more than 15 numbers in each list now
 
             for i in range (len(data[0])):
                 datalist1.append(data[0][i])
@@ -95,65 +95,59 @@ def rolling_avg(data):
     except ValueError:
         print("sensor error")
 
-    return[avg1, avg2, avg3]
-##Rolling average calculated for last 5 points of data
-
-def led_blink(): ##blinks an led (must be used in a loop to have continuous blinking)
-    led.on()
-    time.sleep(0.5)
-    led.off()
+    return[avg1, avg2, avg3] ##Rolling average calculated for last 15 points of data
    
 
-def servo_routine(position): ##direction is either pos or neg to indicate flip forward or back
+def servo_routine(direction): ##direction is either pos or neg to indicate flip forward or back
     ## pos is forward
     ## neg is back
    
     ## position input should be -1 for left
     ## should be positive 1 for right
-    print(position)
+    print(direction)
+
+    if direction == -1:
+        position = -0.7
+    if direction ==1:
+        position = 0.7
        
     servo1.value = position
-    time.sleep(0.5)
+    time.sleep(0.3)
     servo1.detach()
     arbitrary = -0.5
-    servo2.value = arbitrary ##position will need to be tested
-    time.sleep(0.5)
+    servo2.value = arbitrary 
+    time.sleep(0.3)
     servo2.detach()
-    if position == -1:
-        position_new = -0.7
-    if position ==1:
-        position_new = 0.7
+    if direction == -1:
+        position_new = -1
+    if direction ==1:
+        position_new = 1
     servo1.value = -position_new
-    time.sleep(0.5)
+    time.sleep(0.3)
     servo1.detach()
     servo2.max()
-    time.sleep(0.5)
+    time.sleep(0.3)
     servo2.detach()
     time.sleep(0.5)
     reset()
     time.sleep(0.5)
     reset()
-    time.sleep(0.5)
-    reset()
-    time.sleep(0.5)
-    reset()
-    time.sleep(0.5)
-    reset()
-    time.sleep(0.5)
-    reset()
+    
+    
    
    
                    
 def main():
 
     reset()
+    
 
     print ("x Orientation (Raw) \t", "y Oritenation (Raw) \t", "x Orientation (avg) \t", "y Orientation (avg) \t", "LED \t", "Servos")
    
     while True:
 
         data = [[],[],[]]
-        while len(data[0]) < 15: #initializing 15 values for sensor (last 5 seconds)
+        while len(data[0]) < 20: #initializing 15 values for sensor (last 5 seconds)
             values = sensor_data()
             data[0].append(values[0])
             data[1].append(values[1])
@@ -170,7 +164,7 @@ def main():
 
             print(data[0], "\t", data[1], "\t", avg[0], "\t", avg[1], "\t", "ON \t", "OFF" )
            
-            while len(new_data[0]) < 15: #initializing 15 values for sensor (last 5 seconds)
+            while len(new_data[0]) < 20: #initializing 15 values for sensor (last 5 seconds)
                 new_values = sensor_data()
                 new_data[0].append(new_values[0])
                 new_data[1].append(new_values[1])
@@ -208,5 +202,3 @@ def main():
        
         continue
 main()
-
-
